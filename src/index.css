@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes ezxPulse { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes ezxShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(6px); } }
+@keyframes ezxFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ezxFadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+.ezx-shake { animation: ezxShake 0.5s ease-in-out; }
+.ezx-fade-in { animation: ezxFadeIn 0.25s ease-out; }
+.ezx-fade-out { animation: ezxFadeOut 0.4s ease-out forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ezx-shake, .ezx-fade-in, .ezx-fade-out { animation: none !important; }
+}
+
+.ezx-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+.ezx-scroll::-webkit-scrollbar-track { background: #0F172A; }
+.ezx-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+body { background-color: #0F172A; }
