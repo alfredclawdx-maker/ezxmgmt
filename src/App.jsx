@@ -9,7 +9,7 @@ import { PipelineKanban } from "./components/PipelineKanban.jsx";
  * Auth is intentionally NOT persisted — passcode required on every load.
  */
 export default function App() {
-  const [appState, setAppState] = useState("loading");
+  const [appState, setAppState] = useState("dashboard");
 
   const handleLoadingComplete = useCallback(() => setAppState("passcode"), []);
   const handleAuthenticated = useCallback(() => setAppState("pipeline"), []);
