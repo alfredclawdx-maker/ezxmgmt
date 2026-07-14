@@ -18,7 +18,7 @@ export default function App() {
     <div className="w-full min-h-screen bg-slate-950">
       {appState === "loading" && <LoadingScreen onComplete={handleLoadingComplete} />}
       {appState === "passcode" && <PasscodeGate onAuthenticated={handleAuthenticated} />}
-      {appState === "pipeline" && <PipelineKanban onLogout={handleLogout} />}
+     {appState === "pipeline" && <GoldPipeline company={{ id: "co_tampa", name: "Tampa Remodels" }} onHome={handleLogout} onCompanies={handleLogout} onLogout={handleLogout} />}
     </div>
   );
 }
