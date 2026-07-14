@@ -1,8 +1,7 @@
 import { useState, useCallback } from "react";
 import { LoadingScreen } from "./components/LoadingScreen.jsx";
 import { PasscodeGate } from "./components/PasscodeGate.jsx";
-import { PipelineKanban } from "./components/PipelineKanban.jsx";
-
+import { GoldPipeline } from "./components/pipeline.jsx";
 /**
  * Flow: loading → passcode → pipeline
  * Logout → passcode (LoadingScreen never replays).
