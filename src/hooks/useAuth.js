@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 
+/**
+ * Auth is intentionally NOT persisted: the passcode must be entered manually
+ * on every app open (like a computer login screen). Once entered, navigating
+ * anywhere inside the app never re-asks until the page is closed/reloaded
+ * or the user signs out.
+ */
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
+  // Clean up the legacy persisted token so old sessions don't linger
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    setIsAuthenticated(!!token);
-    setIsLoading(false);
+    try { localStorage.removeItem('authToken'); } catch { /* storage blocked */ }
   }, []);
 
   const authenticate = (passcode) => {
     if (passcode === '0001001') {
-      localStorage.setItem('authToken', 'authenticated');
       setIsAuthenticated(true);
       return true;
     }
@@ -20,9 +23,8 @@ export function useAuth() {
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
     setIsAuthenticated(false);
   };
 
-  return { isAuthenticated, isLoading, authenticate, logout };
+  return { isAuthenticated, authenticate, logout };
 }
