@@ -2,6 +2,19 @@ import React from "react";
 import { X, Undo2 } from "lucide-react";
 import { HEALTH_DOT } from "../utils/constants.js";
 
+/* ---------- Sparkline ---------- */
+export function Sparkline({ points, color, height = 46, area = true }) {
+  const max = Math.max(...points, 1);
+  const pts = points.map((v, i) => [(i / (points.length - 1)) * 100, 34 - (v / max) * 26]);
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  return (
+    <svg viewBox="0 0 100 36" className="w-full" style={{ height }} preserveAspectRatio="none" aria-hidden="true">
+      {area && <path d={`${line} L100,36 L0,36 Z`} fill={color} opacity="0.10" />}
+      <path d={line} fill="none" stroke={color} strokeWidth="1.4" style={{ filter: `drop-shadow(0 0 3px ${color})` }} />
+    </svg>
+  );
+}
+
 /* ---------- Small UI atoms ---------- */
 export function Dot({ tone }) {
   return <span className={`inline-block w-2.5 h-2.5 rounded-full ${HEALTH_DOT[tone]}`} />;

@@ -14,7 +14,7 @@ export function PasscodeGate({ onAuthenticated }) {
 
   const validate = (entered) => {
     if (entered === CORRECT_PASSCODE) {
-      onAuthenticated();
+      onAuthenticated(entered);
     } else {
       setError("Incorrect passcode");
       setShake(true);

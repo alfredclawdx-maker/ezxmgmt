@@ -245,8 +245,12 @@ function Donut({ segments, total }) {
 /* ============================================================
    MAIN PIPELINE
    ============================================================ */
-export function GoldPipeline({ company, onHome, onCompanies, onLogout }) {
-  const [leads, setLeads] = useState(() => loadLeads(company.id));
+export function GoldPipeline({ company, onHome = () => {}, onCompanies = () => {}, onLogout = () => {}, leads: propsLeads, setLeads: propsSetLeads }) {
+  const [internalLeads, setInternalLeads] = useState(() => loadLeads(company.id));
+
+  // Use provided leads/setLeads if available, otherwise use internal state
+  const leads = propsLeads !== undefined ? propsLeads : internalLeads;
+  const setLeads = propsSetLeads !== undefined ? propsSetLeads : setInternalLeads;
   const [modal, setModal] = useState(null);
   const [menuFor, setMenuFor] = useState(null);
   const [showLost, setShowLost] = useState(false);
