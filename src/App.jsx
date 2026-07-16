@@ -38,9 +38,17 @@ export default function App() {
     saveLeads(company.id, leads);
   }, [leads, company.id]);
 
-  // Record today's login whenever the dashboard is reached
+  // Record today's login while the app is in use. The interval + focus listener
+  // catch the day rolling over when the app is left open past midnight.
   useEffect(() => {
-    if (appState === 'dashboard') recordLogin();
+    if (appState !== 'dashboard') return;
+    recordLogin();
+    const id = setInterval(recordLogin, 60_000);
+    window.addEventListener('focus', recordLogin);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('focus', recordLogin);
+    };
   }, [appState, recordLogin]);
 
   // Where to go once the loading animation finishes (kept in a ref so the
