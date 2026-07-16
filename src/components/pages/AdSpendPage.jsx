@@ -1,17 +1,11 @@
-import { G } from '../../lib/core.js';
+import { DollarSign } from 'lucide-react';
 
 export function AdSpendPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-bold tracking-[0.08em]" style={{ color: G.goldBright, fontSize: 27, textShadow: '0 0 24px rgba(245,200,66,0.35)' }}>AD SPEND</h1>
-        <p style={{ color: G.faint, fontSize: 10.5, letterSpacing: '0.42em', marginTop: 4 }}>ADVERTISING METRICS</p>
-      </div>
-      <div className="rounded-xl p-8 flex flex-col items-center justify-center min-h-[400px]" style={{ border: `1px solid ${G.border}`, background: 'linear-gradient(180deg,#0F0D08,#0B0A06)' }}>
-        <div style={{ color: G.gold, fontSize: 48, marginBottom: 16 }}>💰</div>
-        <h2 style={{ color: G.text, fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Coming Soon</h2>
-        <p style={{ color: G.dim, fontSize: 13, textAlign: 'center' }}>Ad spend analytics is being developed</p>
-      </div>
+    <div className="min-h-full flex flex-col items-center justify-center rounded-2xl p-8" style={{ background: '#000000', border: '1px solid #2C2C2E' }}>
+      <DollarSign className="w-10 h-10 mb-5" style={{ color: '#48484A' }} strokeWidth={1.5} />
+      <h1 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 600 }}>Ad Spend</h1>
+      <p style={{ color: '#8E8E93', fontSize: 14, marginTop: 8 }}>Coming soon</p>
     </div>
   );
 }

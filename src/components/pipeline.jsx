@@ -404,67 +404,16 @@ export function GoldPipeline({ company, onHome = () => {}, onCompanies = () => {
 
   return (
     <div className="min-h-screen flex ezx-fade-in" style={{ background: "#050403", color: G.text }}>
-      {/* ================= SIDEBAR ================= */}
-      <aside className="hidden lg:flex flex-col w-60 shrink-0 p-4 gap-1 sticky top-0 h-screen overflow-y-auto ezx-scroll" style={{ borderRight: `1px solid ${G.borderSoft}`, background: "#070604" }}>
-        <div className="flex items-center gap-2 px-2 py-4 mb-1">
-          <TrendingUp className="w-6 h-6" style={{ color: G.goldBright, filter: "drop-shadow(0 0 6px rgba(245,200,66,0.6))" }} />
-          <span className="font-bold" style={{ color: G.goldBright, fontSize: 21, textShadow: "0 0 18px rgba(245,200,66,0.4)" }}>ezxmgmt</span>
-        </div>
-        <NavItem icon={LayoutDashboard} label="DASHBOARD" onClick={onHome} />
-        <NavItem icon={FilterIcon} label="PIPELINE" active />
-        <NavItem icon={UsersRound} label="LEADS" onClick={() => setModal({ stagePreset: "NEW" })} />
-        <NavItem icon={Megaphone} label="CAMPAIGNS" />
-        <NavItem icon={Inbox} label="INBOX" badge={activityFeed.length || null} />
-        <NavItem icon={CheckSquare} label="TASKS" />
-        <NavItem icon={CalendarDays} label="CALENDAR" />
-        <NavItem icon={BarChart3} label="REPORTS" />
-        <NavItem icon={Plug} label="INTEGRATIONS" onClick={() => importRef.current?.click()} />
-        <NavItem icon={Settings} label="SETTINGS" onClick={onCompanies} />
-        <input ref={importRef} type="file" accept=".json" className="hidden" onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = () => { try { importAll(reader.result); onCompanies(); } catch { alert("Import failed: not a valid EZXMgmt backup."); } };
-          reader.readAsText(file);
-          e.target.value = "";
-        }} />
-
-        <div className="mt-auto flex flex-col gap-2 pt-3">
-          <div style={sideCard}>
-            <div style={{ color: G.faint, fontSize: 9.5, letterSpacing: "0.2em" }}>SYSTEM STATUS</div>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#3DBE7B", boxShadow: "0 0 6px #3DBE7B" }} />
-              <span style={{ color: G.dim, fontSize: 10.5, letterSpacing: "0.15em" }}>OPERATIONAL</span>
-            </div>
-            <Sparkline points={[3, 5, 4, 7, 6, 9, 7, 10, 8, 11, 9, 12]} color="#8b8570" height={34} area={false} />
-          </div>
-          <div style={sideCard} className="flex items-center justify-between">
-            <span style={{ color: G.faint, fontSize: 9.5, letterSpacing: "0.15em" }}>DATA SYNC<br /><span style={{ color: G.dim }}>REAL-TIME</span></span>
-            <span className="font-mono font-bold" style={{ color: "#4A90E8", fontSize: 14 }}>99.98%</span>
-          </div>
-          <div style={sideCard}>
-            <div style={{ color: G.faint, fontSize: 9.5, letterSpacing: "0.2em" }}>PIPELINE VALUE</div>
-            <div className="font-mono font-bold" style={{ color: G.goldBright, fontSize: 17 }}>{moneyK(metrics.pipelineValue + metrics.revenue)}</div>
-          </div>
-          <div style={sideCard}>
-            <div style={{ color: G.faint, fontSize: 9.5, letterSpacing: "0.2em" }}>ACTIVE LEADS</div>
-            <div className="font-mono font-bold" style={{ color: G.text, fontSize: 17 }}>{metrics.total}</div>
-          </div>
-          <button onClick={onCompanies} className="flex items-center gap-2.5 px-2 py-2.5 rounded-lg transition-opacity hover:opacity-80 text-left" style={{ border: `1px solid ${G.borderSoft}` }}>
-            <span className="w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0" style={{ background: "#1A1710", border: `1px solid ${G.border}`, color: G.goldBright, fontSize: 11 }}>
-              {company.name.slice(0, 2).toUpperCase()}
-            </span>
-            <span className="min-w-0">
-              <span className="block font-semibold truncate" style={{ color: G.text, fontSize: 12 }}>{company.name}</span>
-              <span className="block" style={{ color: G.faint, fontSize: 9.5, letterSpacing: "0.2em" }}>ADMIN</span>
-            </span>
-            <ChevronDown className="w-4 h-4 ml-auto shrink-0" style={{ color: G.dim }} />
-          </button>
-          <button onClick={onLogout} className="w-full flex items-center gap-2 px-4 py-2 rounded-lg" style={{ color: "#E8776B", border: "1px solid rgba(232,119,107,0.3)", fontSize: 11, letterSpacing: "0.15em" }}>
-            <LogOut className="w-4 h-4" /> LOGOUT
-          </button>
-        </div>
-      </aside>
+      {/* Sidebar removed — navigation lives in the app-level dashboard sidebar.
+          Hidden input kept for JSON backup import. */}
+      <input ref={importRef} type="file" accept=".json" className="hidden" onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => { try { importAll(reader.result); onCompanies(); } catch { alert("Import failed: not a valid EZXMgmt backup."); } };
+        reader.readAsText(file);
+        e.target.value = "";
+      }} />
 
       {/* ================= MAIN ================= */}
       <main className="flex-1 min-w-0 p-4 sm:p-6" style={{ background: "radial-gradient(1200px 500px at 60% -10%, rgba(212,175,55,0.05), transparent)" }}>

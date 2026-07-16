@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { LoadingScreen } from './components/LoadingScreen.jsx';
 import { PasscodeGate } from './components/PasscodeGate.jsx';
 import { ProfileSetup } from './components/ProfileSetup.jsx';
@@ -14,37 +14,43 @@ import { RemindersPage } from './components/pages/RemindersPage.jsx';
 import { SettingsPage } from './components/pages/SettingsPage.jsx';
 import { useAuth } from './hooks/useAuth.js';
 import { useProfile } from './hooks/useProfile.js';
+import { useLoginTracker } from './hooks/useLoginTracker.js';
 import { useLocalStorage } from './hooks/useLocalStorage.js';
 import { loadLeads, saveLeads } from './lib/data.js';
 
+/**
+ * Flow: loading → (auth check) → passcode → profile setup (first time) → dashboard.
+ * Auth persists in localStorage — passcode is only asked once until Sign Out.
+ * The dashboard sidebar is the single navigation surface for all pages.
+ */
 export default function App() {
-  const { isAuthenticated, isLoading: authLoading, authenticate, logout } = useAuth();
+  const { isAuthenticated, authenticate, logout } = useAuth();
   const { profile, updateProfile } = useProfile();
+  const { logins, stats, recordLogin } = useLoginTracker();
 
   const [appState, setAppState] = useState('loading');
   const [currentPage, setCurrentPage] = useState('dashboard');
   const company = { id: 'co_tampa', name: 'Tampa Remodels' };
 
-  // Pipeline data
   const [leads, setLeads] = useLocalStorage('ezx_leads_' + company.id, () => loadLeads(company.id));
 
-  // Persist leads on changes
   useEffect(() => {
     saveLeads(company.id, leads);
   }, [leads, company.id]);
 
-  // Initialize app state based on auth status
+  // Record today's login whenever the dashboard is reached
   useEffect(() => {
-    if (!authLoading) {
-      if (isAuthenticated) {
-        setAppState(profile ? 'dashboard' : 'profile');
-      } else {
-        setAppState('passcode');
-      }
-    }
-  }, [authLoading, isAuthenticated, profile]);
+    if (appState === 'dashboard') recordLogin();
+  }, [appState, recordLogin]);
 
-  const handleLoadingComplete = useCallback(() => setAppState('passcode'), []);
+  // Where to go once the loading animation finishes (kept in a ref so the
+  // callback stays stable and the animation never restarts)
+  const nextAfterLoading = useRef('passcode');
+  useEffect(() => {
+    nextAfterLoading.current = isAuthenticated ? (profile ? 'dashboard' : 'profile') : 'passcode';
+  }, [isAuthenticated, profile]);
+
+  const handleLoadingComplete = useCallback(() => setAppState(nextAfterLoading.current), []);
 
   const handleAuthenticated = useCallback((passcode) => {
     if (authenticate(passcode)) {
@@ -59,39 +65,12 @@ export default function App() {
 
   const handleLogout = useCallback(() => {
     logout();
+    setCurrentPage('dashboard');
     setAppState('passcode');
   }, [logout]);
 
-  // Calculate metrics from leads
-  const metrics = useMemo(() => {
-    if (!leads || leads.length === 0) {
-      return {
-        total: 0,
-        qualified: 0,
-        conversionRate: 0,
-        revenue: 0,
-        pipelineValue: 0
-      };
-    }
-
-    const total = leads.length;
-    const notLost = leads.filter(l => !l.lost);
-    const qualified = notLost.filter(l => ['QUALIFIED', 'PROPOSAL', 'WON'].includes(l.stage)).length;
-    const won = notLost.filter(l => l.stage === 'WON').length;
-    const wonValue = won ? notLost.filter(l => l.stage === 'WON').reduce((sum, l) => sum + Number(l.value || 0), 0) : 0;
-    const pipelineValue = notLost.reduce((sum, l) => sum + Number(l.value || 0), 0);
-
-    return {
-      total,
-      qualified,
-      conversionRate: total > 0 ? Math.round((won / total) * 100) : 0,
-      revenue: wonValue,
-      pipelineValue
-    };
-  }, [leads]);
-
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen bg-black">
       {appState === 'loading' && <LoadingScreen onComplete={handleLoadingComplete} />}
       {appState === 'passcode' && <PasscodeGate onAuthenticated={handleAuthenticated} />}
       {appState === 'profile' && <ProfileSetup onProfileCreated={handleProfileCreated} />}
@@ -102,10 +81,9 @@ export default function App() {
           onLogout={handleLogout}
           profile={profile}
           updateProfile={updateProfile}
-          metrics={metrics}
         >
-          {currentPage === 'dashboard' && <Dashboard profile={profile} metrics={metrics} />}
-          {currentPage === 'pipeline' && <PipelinePage leads={leads} setLeads={setLeads} company={company} onLogout={handleLogout} />}
+          {currentPage === 'dashboard' && <Dashboard logins={logins} stats={stats} />}
+          {currentPage === 'pipeline' && <PipelinePage leads={leads} setLeads={setLeads} company={company} />}
           {currentPage === 'login-tracker' && <LoginTrackerPage />}
           {currentPage === 'analytics' && <AnalyticsPage />}
           {currentPage === 'calendar' && <CalendarPage />}

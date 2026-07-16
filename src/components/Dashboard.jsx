@@ -1,228 +1,133 @@
-import { BarChart3, TrendingUp, Percent, DollarSign } from 'lucide-react';
-import { G, money, moneyK } from '../lib/core.js';
+import { useMemo } from 'react';
+import { Calendar, TrendingUp, Target, Check } from 'lucide-react';
 
-function KpiCard({ icon: Icon, label, value, color, trend = 0 }) {
+const panel = { background: '#000000', border: '1px solid #2C2C2E', borderRadius: 18 };
+const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+/* EZX MGMT logo — the only colored element on this page */
+function EzxLogo() {
   return (
-    <div
-      className="rounded-xl p-4 relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #100E08, #0B0A06)', border: `1px solid ${G.border}` }}
-    >
-      <div className="flex items-center gap-2.5 mb-2">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center"
-          style={{
-            border: `1px solid ${color}55`,
-            color,
-            boxShadow: `inset 0 0 12px ${color}18`
-          }}
-        >
-          <Icon className="w-4 h-4" />
-        </div>
-        <span className="tracking-[0.2em] font-medium" style={{ color: G.dim, fontSize: 11 }}>
-          {label}
-        </span>
+    <svg viewBox="0 0 620 170" style={{ width: 360, maxWidth: '80%' }} aria-label="EZX MGMT">
+      <text x="0" y="126" fontSize="112" fontWeight="800" fontStyle="italic" fill="#8E8E93" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-4">EZ</text>
+      <text x="152" y="132" fontSize="134" fontWeight="900" fontStyle="italic" fill="#2E7CD6" fontFamily="Arial, Helvetica, sans-serif">X</text>
+      {/* arrow through the X */}
+      <path d="M158 130 L268 32" stroke="#2E7CD6" strokeWidth="12" strokeLinecap="round" />
+      <polygon points="284,18 292,58 250,44" fill="#2E7CD6" />
+      <text x="292" y="126" fontSize="104" fontWeight="700" fill="#6E6E73" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-2">MGMT</text>
+    </svg>
+  );
+}
+
+function MonthGrid({ loggedSet }) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dayKey = (d) =>
+    `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+  const cells = [
+    ...Array.from({ length: firstWeekday }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  return (
+    <div>
+      <div className="grid grid-cols-7 gap-2 mb-3">
+        {WEEKDAYS.map((d) => (
+          <div key={d} className="text-center" style={{ color: '#98989D', fontSize: 12, letterSpacing: '0.06em' }}>
+            {d}
+          </div>
+        ))}
       </div>
-      <div className="flex items-baseline gap-2.5">
-        <span
-          className="font-bold font-mono"
-          style={{ color, fontSize: 30, textShadow: `0 0 22px ${color}55` }}
-        >
-          {value}
-        </span>
-        <span
-          className="font-mono font-semibold"
-          style={{ color: trend >= 0 ? '#3DBE7B' : '#E8776B', fontSize: 13 }}
-        >
-          {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}%
-        </span>
+      <div className="grid grid-cols-7 gap-y-4 gap-x-2">
+        {cells.map((day, i) =>
+          day === null ? (
+            <div key={`blank-${i}`} />
+          ) : (
+            <div key={day} className="flex flex-col items-center gap-1.5">
+              <span style={{ color: '#8E8E93', fontSize: 13 }}>{day}</span>
+              {loggedSet.has(dayKey(day)) ? (
+                <span
+                  className="flex items-center justify-center"
+                  style={{ width: 22, height: 22, borderRadius: 6, background: '#FFFFFF' }}
+                >
+                  <Check className="w-3.5 h-3.5" style={{ color: '#000000' }} strokeWidth={3} />
+                </span>
+              ) : (
+                <span style={{ width: 22, height: 22, borderRadius: 6, border: '1.5px solid #48484A' }} />
+              )}
+            </div>
+          )
+        )}
       </div>
     </div>
   );
 }
 
-export function Dashboard({ profile, metrics = {} }) {
+function SummaryRow({ icon: Icon, label, value, unit, last }) {
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div>
-        <p style={{ color: G.faint, fontSize: 13, letterSpacing: '0.1em', marginBottom: 8 }}>Welcome back</p>
-        <h1
-          className="font-bold tracking-[0.08em]"
-          style={{
-            color: G.goldBright,
-            fontSize: 36,
-            textShadow: '0 0 24px rgba(245,200,66,0.35)',
-            marginBottom: 2
-          }}
+    <div
+      className="flex items-center justify-between py-4"
+      style={{ borderBottom: last ? 'none' : '1px solid #2C2C2E' }}
+    >
+      <div className="flex items-center gap-4">
+        <span
+          className="flex items-center justify-center"
+          style={{ width: 44, height: 44, borderRadius: 12, background: '#1C1C1E' }}
         >
-          Glad to see you again{profile?.name ? ', ' + profile.name.split(' ')[0] : ''}.
+          <Icon className="w-5 h-5 text-white" strokeWidth={1.75} />
+        </span>
+        <span style={{ color: '#F2F2F2', fontSize: 15 }}>{label}</span>
+      </div>
+      <div className="text-right">
+        <div style={{ color: '#FFFFFF', fontSize: 28, fontWeight: 700, lineHeight: 1 }}>{value}</div>
+        <div style={{ color: '#8E8E93', fontSize: 13 }}>{unit}</div>
+      </div>
+    </div>
+  );
+}
+
+export function Dashboard({ logins = [], stats = {} }) {
+  const loggedSet = useMemo(() => new Set(logins), [logins]);
+
+  return (
+    <div className="min-h-full flex flex-col xl:flex-row gap-4">
+      {/* Center welcome panel */}
+      <section className="flex-1 min-h-[420px] flex flex-col items-center justify-center p-8" style={panel}>
+        <p style={{ color: '#98989D', fontSize: 22 }}>Welcome back</p>
+        <h1 className="text-center" style={{ color: '#FFFFFF', fontSize: 46, fontWeight: 600, marginTop: 8 }}>
+          Glad to see you again.
         </h1>
-        <p style={{ color: G.dim, fontSize: 14, letterSpacing: '0.05em' }}>
-          {profile?.role || 'Manager'} · Today at {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </p>
-      </div>
-
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          icon={TrendingUp}
-          label="TOTAL LEADS"
-          value={metrics.total || 0}
-          color="#F5C842"
-          trend={12}
-        />
-        <KpiCard
-          icon={BarChart3}
-          label="QUALIFIED LEADS"
-          value={metrics.qualified || 0}
-          color="#4A90E8"
-          trend={8}
-        />
-        <KpiCard
-          icon={Percent}
-          label="CONVERSION RATE"
-          value={`${metrics.conversionRate || 0}%`}
-          color="#3DBE7B"
-          trend={5}
-        />
-        <KpiCard
-          icon={DollarSign}
-          label="CLOSED REVENUE"
-          value={moneyK(metrics.revenue || 0)}
-          color="#A96FE8"
-          trend={15}
-        />
-      </div>
-
-      {/* Login Tracker Section */}
-      <div
-        className="rounded-xl p-6"
-        style={{ border: `1px solid ${G.border}`, background: 'linear-gradient(180deg,#0F0D08,#0B0A06)' }}
-      >
-        <h2 style={{ color: G.goldBright, fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
-          DAILY LOGIN TRACKER
-        </h2>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: 8,
-            marginBottom: 16
-          }}
-        >
-          {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
-            <div key={day} style={{ textAlign: 'center' }}>
-              <div style={{ color: G.dim, fontSize: 10, marginBottom: 8, letterSpacing: '0.1em' }}>
-                {day}
-              </div>
-            </div>
-          ))}
+        <div style={{ marginTop: 72 }}>
+          <EzxLogo />
         </div>
+      </section>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: 8
-          }}
-        >
-          {Array.from({ length: 31 }).map((_, i) => (
-            <div
-              key={i}
-              style={{
-                aspectRatio: '1',
-                background: i % 3 === 0 ? '#1A1710' : 'transparent',
-                border: `1px solid ${G.border}`,
-                borderRadius: 6,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              className="hover:bg-opacity-50"
-            >
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: i % 3 === 0 ? G.goldBright : G.faint,
-                  fontSize: 11,
-                  fontWeight: 500
-                }}
-              >
-                {i + 1}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Right column */}
+      <div className="w-full xl:w-[420px] shrink-0 flex flex-col gap-4">
+        <section className="p-6" style={panel}>
+          <h2
+            className="pb-3 mb-5"
+            style={{ color: '#F2F2F2', fontSize: 19, letterSpacing: '0.06em', borderBottom: '1px solid #3A3A3C' }}
+          >
+            DAILY LOGIN TRACKER
+          </h2>
+          <MonthGrid loggedSet={loggedSet} />
+        </section>
 
-      {/* Summary Section */}
-      <div
-        className="rounded-xl p-6"
-        style={{ border: `1px solid ${G.border}`, background: 'linear-gradient(180deg,#0F0D08,#0B0A06)' }}
-      >
-        <h2 style={{ color: G.goldBright, fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
-          SUMMARY
-        </h2>
-
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4" style={{ background: '#0B0A07', borderRadius: 8 }}>
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: '#1A1710', color: G.goldBright }}
-              >
-                📅
-              </div>
-              <span style={{ color: G.text, fontSize: 13 }}>Current Streak</span>
-            </div>
-            <span
-              className="font-mono font-bold"
-              style={{ color: G.goldBright, fontSize: 18 }}
-            >
-              0 <span style={{ fontSize: 11, color: G.dim }}>days</span>
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-4" style={{ background: '#0B0A07', borderRadius: 8 }}>
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: '#1A1710', color: G.goldBright }}
-              >
-                📈
-              </div>
-              <span style={{ color: G.text, fontSize: 13 }}>Longest Streak</span>
-            </div>
-            <span
-              className="font-mono font-bold"
-              style={{ color: G.goldBright, fontSize: 18 }}
-            >
-              0 <span style={{ fontSize: 11, color: G.dim }}>days</span>
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-4" style={{ background: '#0B0A07', borderRadius: 8 }}>
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: '#1A1710', color: G.goldBright }}
-              >
-                👁️
-              </div>
-              <span style={{ color: G.text, fontSize: 13 }}>Monthly Logins</span>
-            </div>
-            <span
-              className="font-mono font-bold"
-              style={{ color: G.goldBright, fontSize: 18 }}
-            >
-              0 <span style={{ fontSize: 11, color: G.dim }}>times</span>
-            </span>
-          </div>
-        </div>
+        <section className="p-6 flex-1" style={panel}>
+          <h2
+            className="pb-3 mb-2"
+            style={{ color: '#F2F2F2', fontSize: 19, letterSpacing: '0.06em', borderBottom: '1px solid #3A3A3C' }}
+          >
+            SUMMARY
+          </h2>
+          <SummaryRow icon={Calendar} label="Current Streak" value={stats.currentStreak ?? 0} unit="days" />
+          <SummaryRow icon={TrendingUp} label="Longest Streak" value={stats.longestStreak ?? 0} unit="days" />
+          <SummaryRow icon={Target} label="Monthly Logins" value={stats.monthlyLogins ?? 0} unit="times" last />
+        </section>
       </div>
     </div>
   );

@@ -1,18 +1,16 @@
-import { G } from '../lib/core.js';
 import { Sidebar } from './Sidebar.jsx';
 
-export function DashboardLayout({ activeTab, onNavigate, onLogout, profile, updateProfile, metrics, children }) {
+export function DashboardLayout({ activeTab, onNavigate, onLogout, profile, updateProfile, children }) {
   return (
-    <div className="min-h-screen flex ezx-fade-in" style={{ background: '#050403', color: G.text }}>
+    <div className="h-screen flex gap-4 p-4 ezx-fade-in" style={{ background: '#000000' }}>
       <Sidebar
         activeTab={activeTab}
         onNavigate={onNavigate}
         onLogout={onLogout}
         profile={profile}
         updateProfile={updateProfile}
-        metrics={metrics}
       />
-      <main className="flex-1 min-w-0 p-4 sm:p-6" style={{ background: 'radial-gradient(1200px 500px at 60% -10%, rgba(212,175,55,0.05), transparent)' }}>
+      <main className="flex-1 min-w-0 overflow-y-auto ezx-scroll">
         {children}
       </main>
     </div>
