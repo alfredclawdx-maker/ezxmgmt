@@ -4,16 +4,19 @@ import { Calendar, TrendingUp, Target, Check } from 'lucide-react';
 const panel = { background: '#000000', border: '1px solid #2C2C2E', borderRadius: 18 };
 const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-/* EZX MGMT logo — the only colored element on this page */
+/* EZX MGMT logo — the only colored element on this page.
+   The X is drawn from two strokes; the rising stroke extends into the arrow. */
 function EzxLogo() {
   return (
-    <svg viewBox="0 0 620 170" style={{ width: 360, maxWidth: '80%' }} aria-label="EZX MGMT">
-      <text x="0" y="126" fontSize="112" fontWeight="800" fontStyle="italic" fill="#8E8E93" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-4">EZ</text>
-      <text x="152" y="132" fontSize="134" fontWeight="900" fontStyle="italic" fill="#2E7CD6" fontFamily="Arial, Helvetica, sans-serif">X</text>
-      {/* arrow through the X */}
-      <path d="M158 130 L268 32" stroke="#2E7CD6" strokeWidth="12" strokeLinecap="round" />
-      <polygon points="284,18 292,58 250,44" fill="#2E7CD6" />
-      <text x="292" y="126" fontSize="104" fontWeight="700" fill="#6E6E73" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-2">MGMT</text>
+    <svg viewBox="0 0 660 170" style={{ width: 380, maxWidth: '80%' }} aria-label="EZX MGMT">
+      <text x="0" y="128" fontSize="112" fontWeight="800" fontStyle="italic" fill="#8E8E93" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-4">EZ</text>
+      {/* X down-stroke: top-left → bottom-right */}
+      <path d="M178 44 L282 128" stroke="#2E7CD6" strokeWidth="24" strokeLinecap="round" />
+      {/* X up-stroke doubles as the arrow shaft: bottom-left → up-right */}
+      <path d="M176 130 L290 38" stroke="#2E7CD6" strokeWidth="24" strokeLinecap="round" />
+      {/* arrowhead at the tip of the up-stroke */}
+      <polygon points="330,8 316,60 272,26" fill="#2E7CD6" />
+      <text x="326" y="128" fontSize="104" fontWeight="700" fill="#6E6E73" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-2">MGMT</text>
     </svg>
   );
 }
