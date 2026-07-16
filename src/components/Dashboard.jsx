@@ -4,20 +4,15 @@ import { Calendar, TrendingUp, Target, Check } from 'lucide-react';
 const panel = { background: '#000000', border: '1px solid #2C2C2E', borderRadius: 18 };
 const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-/* EZX MGMT logo — the only colored element on this page.
-   The X is drawn from two strokes; the rising stroke extends into the arrow. */
+/* EZX MGMT brand logo (public/logo.png) — the only colored element on this page */
 function EzxLogo() {
   return (
-    <svg viewBox="0 0 660 170" style={{ width: 380, maxWidth: '80%' }} aria-label="EZX MGMT">
-      <text x="0" y="128" fontSize="112" fontWeight="800" fontStyle="italic" fill="#8E8E93" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-4">EZ</text>
-      {/* X down-stroke: top-left → bottom-right */}
-      <path d="M178 44 L282 128" stroke="#2E7CD6" strokeWidth="24" strokeLinecap="round" />
-      {/* X up-stroke doubles as the arrow shaft: bottom-left → up-right */}
-      <path d="M176 130 L290 38" stroke="#2E7CD6" strokeWidth="24" strokeLinecap="round" />
-      {/* arrowhead at the tip of the up-stroke */}
-      <polygon points="330,8 316,60 272,26" fill="#2E7CD6" />
-      <text x="326" y="128" fontSize="104" fontWeight="700" fill="#6E6E73" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="-2">MGMT</text>
-    </svg>
+    <img
+      src="/logo.png"
+      alt="EZX MGMT"
+      style={{ width: 400, maxWidth: '80%', height: 'auto' }}
+      draggable={false}
+    />
   );
 }
 
